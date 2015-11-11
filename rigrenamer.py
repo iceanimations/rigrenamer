@@ -9,6 +9,9 @@ def rename_controls(removeCharPrefix=None, add_underscore_to_lr=True, controls=N
     if controls is None:
         controls = get_controls()
 
+    if removeCharPrefix and removeCharPrefix.endswith('_'):
+        removeCharPrefix = removeCharPrefix[:-1]
+
     if removeCharPrefix:
         cp = re.compile(removeCharPrefix+ '_' )
 
@@ -51,12 +54,15 @@ class RigRenameGUI(object):
             pc.deleteUI(self.name)
         with pc.window(self.name, title='Rig Renamer'):
             with pc.columnLayout(adj=True):
+                self.detectButton = pc.button('Detect Character Prefix',
+                        c=self.detect_and_update)
                 self.charPrefixField = pc.textFieldGrp(label='Char_PrefixName')
                 self.doUnderscoreCheck = pc.checkBoxGrp(v1=True,
                         label='add underscore to lr    ')
                 self.useSelectionCheck = pc.checkBoxGrp(v1=False,
                         label='rename selected controls only    ')
-                self.doButton = pc.button('Go', c=self.do)
+                self.doButton = pc.button('Rename', c=self.do)
+        self.detect_and_update()
 
     def do(self, *args):
         pre = self.charPrefixField.getText()
@@ -66,7 +72,17 @@ class RigRenameGUI(object):
         rename_controls(removeCharPrefix=pre, add_underscore_to_lr=und,
                 controls=con)
 
+    def detect_and_update(self, *args):
+        self.charPrefixField.setText(str(self.detect()))
 
+    def detect(self):
+        prefix = ''
+        for node in pc.ls(regex='(?i).*mainc[^|]*', type='nurbsCurve'):
+            match = re.match('(?i)(.*)mainc[^|]*', unicode( node ) )
+            prefix = match.group(1)
+            if prefix:
+                break
+        return prefix
 
 
 if __name__ == "__main__":
