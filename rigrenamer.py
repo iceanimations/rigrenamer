@@ -16,7 +16,8 @@ def rename_controls(removeCharPrefix=None, add_underscore_to_lr=True, controls=N
         cp = re.compile(removeCharPrefix+ '_' )
 
     if add_underscore_to_lr:
-        lr = re.compile('(_?r|l)([A-Z]{1})')
+        lr = re.compile('(_?)(r|l)([A-Z]{1})')
+
 
     for node in controls:
 
@@ -34,7 +35,7 @@ def rename_controls(removeCharPrefix=None, add_underscore_to_lr=True, controls=N
                 sub += _sub
 
         if add_underscore_to_lr:
-            _newname, _sub = lr.subn(r'\1_\2', newname)
+            _newname, _sub = lr.subn(r'_\2_\3', newname)
             if _sub:
                 newname = _newname
             sub += _sub
